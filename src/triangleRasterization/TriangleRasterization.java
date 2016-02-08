@@ -116,6 +116,8 @@ public class TriangleRasterization extends JPanel{
 	public Triangle triangles[];
 	public Triangle renderTriangles[];
 	
+	public char values[] = {' ','`','.',':', '*', '"', 'l', 'O', '5', '8', '@', '#','#'};
+	
 	public BufferedImage depth;
 	
 	public BufferedImage image;
@@ -124,9 +126,11 @@ public class TriangleRasterization extends JPanel{
 	
 	float delta = 0;
 	
-	int width = 800;
-	int height = 600;
+	int width = 1280;
+	int height = 720;
 	
+	int frameWidth = 80;
+	int frameHeight = 45;
 	
 	public static void main(String[] args) {
 		TriangleRasterization raster = new TriangleRasterization();
@@ -147,8 +151,8 @@ public class TriangleRasterization extends JPanel{
 			m1.m22 = (float)Math.cos(theta);
 			Matrix4f m2 = new Matrix4f();
 			m2.setIdentity();
-			m2.m30 = 400;
-			m2.m31 = 100;
+			m2.m30 = frameWidth / 2;
+			m2.m31 = 5;
 			m2.m32 = 200;
 			for(int i = 0; i < triangles.length; i++){
 				renderTriangles[i] = triangles[i].mul(Matrix4f.mul(m2, m1, null), m1);
@@ -177,9 +181,9 @@ public class TriangleRasterization extends JPanel{
 		triangles[0] = new Triangle();
 		triangles[0].points[0] = new Vector3f(0, 0, 0);
 		triangles[0].normals[0] = new Vector3f(0, 0, 1);
-		triangles[0].points[1] = new Vector3f(100, 300, 100);
+		triangles[0].points[1] = new Vector3f(25, 25, 25);
 		triangles[0].normals[1] = new Vector3f(0, 0, 1);
-		triangles[0].points[2] = new Vector3f(-100, 300, 100);
+		triangles[0].points[2] = new Vector3f(-25, 25, 25);
 		triangles[0].normals[2] = new Vector3f(0, 0, 1);
 		triangles[0].texCoords[0] = new Vector2f(0.5f, 0.0f);
 		triangles[0].texCoords[1] = new Vector2f(0.0f, 1.0f);
@@ -188,9 +192,9 @@ public class TriangleRasterization extends JPanel{
 		triangles[1] = new Triangle();
 		triangles[1].points[0] = new Vector3f(0, 0, 0);
 		triangles[1].normals[0] = new Vector3f(0, 0, -1);
-		triangles[1].points[1] = new Vector3f(100, 300, -100);
+		triangles[1].points[1] = new Vector3f(25, 25, -25);
 		triangles[1].normals[1] = new Vector3f(0, 0, -1);
-		triangles[1].points[2] = new Vector3f(-100, 300, -100);
+		triangles[1].points[2] = new Vector3f(-25, 25, -25);
 		triangles[1].normals[2] = new Vector3f(0, 0, -1);
 		triangles[1].texCoords[0] = new Vector2f(0.5f, 0.0f);
 		triangles[1].texCoords[1] = new Vector2f(0.0f, 1.0f);
@@ -199,9 +203,9 @@ public class TriangleRasterization extends JPanel{
 		triangles[2] = new Triangle();
 		triangles[2].points[0] = new Vector3f(0, 0, 0);
 		triangles[2].normals[0] = new Vector3f(1, 0, 0);
-		triangles[2].points[1] = new Vector3f(100, 300, -100);
+		triangles[2].points[1] = new Vector3f(25, 25, -25);
 		triangles[2].normals[1] = new Vector3f(1, 0, 0);
-		triangles[2].points[2] = new Vector3f(100, 300, 100);
+		triangles[2].points[2] = new Vector3f(25, 25, 25);
 		triangles[2].normals[2] = new Vector3f(1, 0, 0);
 		triangles[2].texCoords[0] = new Vector2f(0.5f, 0.0f);
 		triangles[2].texCoords[1] = new Vector2f(0.0f, 1.0f);
@@ -210,16 +214,16 @@ public class TriangleRasterization extends JPanel{
 		triangles[3] = new Triangle();
 		triangles[3].points[0] = new Vector3f(0, 0, 0);
 		triangles[3].normals[0] = new Vector3f(-1, 0, 0);
-		triangles[3].points[1] = new Vector3f(-100, 300, -100);
+		triangles[3].points[1] = new Vector3f(-25, 25, -25);
 		triangles[3].normals[1] = new Vector3f(-1, 0, 0);
-		triangles[3].points[2] = new Vector3f(-100, 300, 100);
+		triangles[3].points[2] = new Vector3f(-25, 25, 25);
 		triangles[3].normals[2] = new Vector3f(-1, 0, 0);
 		triangles[3].texCoords[0] = new Vector2f(0.5f, 0.0f);
 		triangles[3].texCoords[1] = new Vector2f(0.0f, 1.0f);
 		triangles[3].texCoords[2] = new Vector2f(1.0f, 1.0f);
 		
-		image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-		depth = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+		image = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
+		depth = new BufferedImage(frameWidth, frameHeight, BufferedImage.TYPE_INT_ARGB);
 		
 		try {
 			texture = ImageIO.read(new File("test.png"));
@@ -230,15 +234,28 @@ public class TriangleRasterization extends JPanel{
 		Graphics2D g = (Graphics2D)image.getGraphics();
 		Graphics2D gd = (Graphics2D)depth.getGraphics();
 		gd.setColor(Color.WHITE);
-		gd.fillRect(0, 0, width, height);
+		gd.fillRect(0, 0, frameWidth, frameHeight);
 		g.setColor(Color.BLACK);
-		g.fillRect(0, 0, width, height);
+		g.fillRect(0, 0, frameWidth, frameHeight);
+		panel.setColor(Color.BLACK);
+		panel.fillRect(0, 0, width, height);
 		for(int i = 0 ; i < renderTriangles.length; i++){			
 			renderTriangle(renderTriangles[i]);
 		}
-		g.setColor(Color.WHITE);
-		g.drawString("delta: " + delta + " fps: " + 1.0f/delta, 10, 50);
-		panel.drawImage(image, 0, 0, null);
+		for(int x = 0; x < frameWidth; x++){
+			for(int y = 0; y < frameHeight; y++){
+				
+				Color c = new Color(image.getRGB(x, y));
+				float hsb[] = Color.RGBtoHSB(c.getRed(), c.getGreen(), c.getBlue(), null);
+				char value = values[(int)(hsb[2]*values.length)];
+				panel.setColor(new Color(Color.HSBtoRGB(hsb[0], hsb[1], 1.0f)));
+				panel.drawString(value +"", x * 16, y * 16);
+			}	
+		}
+		
+		panel.drawImage(image, 0, 0,width, height, null);
+		panel.setColor(Color.WHITE);
+		panel.drawString("delta: " + delta + " fps: " + 1.0f/delta, 10, 50);
 	}
 	
 	private int clamp(int value, int min, int max){
@@ -255,10 +272,10 @@ public class TriangleRasterization extends JPanel{
 	private void renderTriangle(Triangle t){
 		Vector3f w1 = Vector3f.sub(t.points[1], t.points[0], null);
 		Vector3f w2 = Vector3f.sub(t.points[2], t.points[0], null);
-		int maxX = clamp((int)t.getMaxX(), 0, width);
-		int maxY = clamp((int)t.getMaxY(), 0, height);
-		int minX = clamp((int)t.getMinX(), 0, width);
-		int minY = clamp((int)t.getMinY(), 0, height);
+		int maxX = clamp((int)t.getMaxX(), 0, frameWidth);
+		int maxY = clamp((int)t.getMaxY(), 0, frameHeight);
+		int minX = clamp((int)t.getMinX(), 0, frameWidth);
+		int minY = clamp((int)t.getMinY(), 0, frameHeight);
 		
 		for(int x = minX; x <maxX; x++){
 			for(int y = minY; y <maxY; y++){
@@ -273,11 +290,9 @@ public class TriangleRasterization extends JPanel{
 						Vector2f texCoord = t.lerpTexCoord(u, v);
 						texCoord.x *= texture.getWidth()-1;
 						texCoord.y *= texture.getHeight()-1;
-						
 						if(value < 0){
 							value = 0;
 						}
-						//image.setRGB(x, y, new Color(value, value, value).getRGB());
 						Color col = new Color(texture.getRGB((int)texCoord.x, (int)texCoord.y));
 						
 						image.setRGB(x, y, new Color((int)(col.getRed() * value), (int)(col.getGreen() * value), (int)(col.getBlue() * value)).getRGB());
